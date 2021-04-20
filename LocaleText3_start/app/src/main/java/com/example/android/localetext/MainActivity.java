@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     // Default quantity is 1.
     private int mInputQuantity = 1;
 
-    private NumberFormat mNumberFormat = NumberFormat.getInstance();
+    private final NumberFormat mNumberFormat = NumberFormat.getInstance();
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Fixed price in U.S. dollars and cents: ten cents.
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     double mFrExchangeRate = 0.93; // 0.93 euros = $1.
     double mIwExchangeRate = 3.61; // 3.61 new shekels = $1.
 
-    // TODO: Get locale's currency.
+    private NumberFormat mCurrencyFormat = NumberFormat.getCurrencyInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +66,23 @@ public class MainActivity extends AppCompatActivity {
         TextView expirationDateView = (TextView) findViewById(R.id.date);
         expirationDateView.setText(myFormattedDate);
 
-        // TODO: Apply the exchange rate and calculate the price.
+        String myFormattedPrice;
+        String deviceLocale = Locale.getDefault().getCountry();
 
-        // TODO: Show the price string.
+        if (deviceLocale.equals("FR") || deviceLocale.equals("IL")) {
+            if (deviceLocale.equals("FR")) {
+                mPrice *= mFrExchangeRate;
+            } else {
+                mPrice *= mIwExchangeRate;
+            }
+            myFormattedPrice = mCurrencyFormat.format(mPrice);
+        } else {
+            mCurrencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
+            myFormattedPrice = mCurrencyFormat.format(mPrice);
+        }
+
+        TextView localePrice = (TextView) findViewById(R.id.price);
+        localePrice.setText(myFormattedPrice);
 
         final EditText enteredQuantity = (EditText) findViewById(R.id.quantity);
         enteredQuantity.setOnEditorActionListener(new EditText.OnEditorActionListener() {
@@ -87,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                             mInputQuantity = mNumberFormat.parse(v.getText().toString()).intValue();
                             v.setError(null);
                         } catch (ParseException e) {
-                            Log.e(TAG,Log.getStackTraceString(e));
+                            Log.e(TAG, Log.getStackTraceString(e));
                             v.setError(getText(R.string.enter_number));
                             return false;
                         }
