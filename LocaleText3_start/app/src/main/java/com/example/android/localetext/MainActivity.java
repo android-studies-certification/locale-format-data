@@ -7,6 +7,7 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
     // Default quantity is 1.
     private int mInputQuantity = 1;
 
-    // TODO: Get the number format for this locale.
+    private NumberFormat mNumberFormat = NumberFormat.getInstance();
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     // Fixed price in U.S. dollars and cents: ten cents.
     private double mPrice = 0.10;
@@ -75,14 +79,21 @@ public class MainActivity extends AppCompatActivity {
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService
                             (Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    // Check if view v is empty.
+
                     if (v.toString().equals("")) {
                         // Don't format, leave alone.
                     } else {
+                        try {
+                            mInputQuantity = mNumberFormat.parse(v.getText().toString()).intValue();
+                            v.setError(null);
+                        } catch (ParseException e) {
+                            Log.e(TAG,Log.getStackTraceString(e));
+                            v.setError(getText(R.string.enter_number));
+                            return false;
+                        }
 
-                        // TODO: Parse string in view v to a number.
-
-                        // TODO: Convert to string using locale's number format.
+                        String myFormattedQuantity = mNumberFormat.format(mInputQuantity);
+                        v.setText(myFormattedQuantity);
 
                         // TODO: Homework: Calculate the total amount from price and quantity.
 
