@@ -53,12 +53,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Date myDate = new Date();
-        // Add 5 days in milliseconds to create the expiration date.
         final long expirationDate = myDate.getTime() + TimeUnit.DAYS.toMillis(5);
-        // Set the expiration date as the date to display.
         myDate.setTime(expirationDate);
 
-        // TODO: Format the date for the locale.
+        final String myFormattedDate = DateFormat.getDateInstance().format(myDate);
+
+        TextView expirationDateView = (TextView) findViewById(R.id.date);
+        expirationDateView.setText(myFormattedDate);
 
         // TODO: Apply the exchange rate and calculate the price.
 
